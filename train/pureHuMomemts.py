@@ -26,8 +26,9 @@ def test3(a,b):
 	
 def run2(path):
 	ret = nuiMome(path)
-	print name+',',
-	print ','.join(str(p) for p in ret)	
+	# print name+',',
+	print ' '.join(str(p) for p in ret)	
+	print 0
 	return 0
 	
 # def run(path):
@@ -42,7 +43,7 @@ def run2(path):
 	# cv2.waitKey(0)
 	# cv2.destroyAllWindows()
 	
-name = "blkelephant"
+name = "jukblack"
 f = open('.\\'+name+'\\text.txt', 'r')
 for line in f:
 	path = '.\\'+name+'\\'+line

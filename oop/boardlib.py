@@ -1,5 +1,6 @@
 import cv2
 import numpy as np
+from tuilib import Tui
 
 class Board:
 	# class __doc__
@@ -14,6 +15,7 @@ class Board:
 		self.rawImg 			= rawImg
 		self.gray				= cv2.cvtColor(rawImg,cv2.COLOR_BGR2GRAY)
 		self.hsv				= cv2.cvtColor(rawImg,cv2.COLOR_BGR2HSV)
+		self.hsvThresh			= None
 		_, self.thresh			= cv2.threshold(self.gray,0,255,cv2.THRESH_BINARY+cv2.THRESH_OTSU)
 		self.boardDetect		= rawImg.copy()
 		self.horizontal			= np.uint8(np.zeros((210, 297, 3)))
@@ -85,7 +87,7 @@ class Board:
 	
 
 	def drawCircles(self):
-	
+		self.getCircle()
 		if self.verticalCircles is not None:
 			self.vertical2 = self.vertical.copy()
 			for i in self.verticalCircles[0,:]:
@@ -103,3 +105,29 @@ class Board:
 				cv2.circle(self.horizontal2,(i[0],i[1]),i[2],(0,255,0),2)
 				# draw the center of the circle
 				cv2.circle(self.horizontal2,(i[0],i[1]),2,(0,0,255),3)
+				
+				
+	def getTuis(self):
+		tui = []
+		if self.verticalCircles is not None:
+			for i in self.verticalCircles[0,:]:		
+				center = (i[0],i[1])
+				radius = self.size*297/19
+				x1 = center[0]-radius
+				y1 = center[1]-radius
+				x2 = center[0]+radius
+				y2 = center[1]+radius
+				eachTui = Tui(self.vertical[y1:y2,x1:x2],center)
+				tui.append(eachTui)
+				
+		if self.horizontalCircles is not None:
+			for i in self.horizontalCircles[0,:]:		
+				center = (i[0],i[1])
+				radius = self.size*297/19
+				x1 = center[0]-radius
+				y1 = center[1]-radius
+				x2 = center[0]+radius
+				y2 = center[1]+radius
+				eachTui = Tui(self.horizontal[y1:y2,x1:x2],center)
+				tui.append(eachTui)
+		return tui
