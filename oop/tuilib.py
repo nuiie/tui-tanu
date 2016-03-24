@@ -1,6 +1,6 @@
 import numpy as np
 import cv2
-
+from sklearn.ensemble import RandomForestClassifier
 
 class Tui:
 	"Tui class for each tui. Contain tui's property"
@@ -16,7 +16,6 @@ class Tui:
 		self.letter				= np.zeros_like(rawImg)
 		self.huMoment			= None
 		self.name				= None
-	
 	
 	def getLetter(self):
 		if self.thresh is None:
@@ -45,10 +44,45 @@ class Tui:
 				mask = np.zeros_like(thresh) 				# Create mask where white is what we want, black otherwise
 				cv2.drawContours(mask, [cnt], 0, 255, -1) 	# Draw filled contour in mask
 				self.letter = np.zeros_like(thresh) 				# Extract out the object and place into output image
-				self.letter[mask == 255] = thresh[mask == 255]	
-				# break
-		
-		
+				self.letter[mask == 255] = thresh[mask == 255]
+
 	def getHuMoment(self):
 		a = cv2.HuMoments( cv2.moments(self.letter,binaryImage = True) ).flatten()
 		self.huMoment = -np.sign(a)*np.log10(np.abs(a))
+		
+	def getTuiName(self, classifier):
+		if self.huMoment is None:
+			print 'tui has no huMoment dont get tui name just yet'
+		else:
+			prediction = str(int(classifier.predict(self.huMoment.reshape(1,-1)))) # reshape for single sample 
+			
+			if prediction == '2':
+				self.name = 'R T'
+			elif prediction == '3':
+				self.name = 'B T'
+			elif prediction == '4':
+				self.name = "R Fly"
+			elif prediction == '5':
+				self.name = "B Fly"
+			elif prediction == '6':
+				self.name = 'R Ele'
+			elif prediction == '7':
+				self.name = "B Ele"
+			elif prediction == '8':
+				self.name = "R Boat"
+			elif prediction == '9':
+				self.name = "B Boat"
+			elif prediction == '10':
+				self.name = "R Horse"
+			elif prediction == '11':
+				self.name = "B Horse"
+			elif prediction == '12':
+				self.name = "R Phao"
+			elif prediction == '13':
+				self.name = "B Phao"
+			elif prediction == '14':
+				self.name = "R juk"
+			elif prediction == '15':
+				self.name = "B juk"
+			else:
+				self.name = prediction

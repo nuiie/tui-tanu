@@ -4,13 +4,14 @@ from matplotlib import pyplot as plt
 import cv2
 import time
 import numpy as np
+import cPickle
+from sklearn.ensemble import RandomForestClassifier
 
 def set_res(cap, x,y):
 	cap.set(cv2.cv.CV_CAP_PROP_FRAME_WIDTH, int(x))
 	cap.set(cv2.cv.CV_CAP_PROP_FRAME_HEIGHT, int(y))
 	return str(cap.get(cv2.cv.CV_CAP_PROP_FRAME_WIDTH)),str(cap.get(cv2.cv.CV_CAP_PROP_FRAME_HEIGHT))
 
-	
 def plot(tuis):
 	num_tui = len(tuis)
 		
@@ -25,7 +26,11 @@ def plot(tuis):
 		plt.xticks([]),plt.yticks([])
 	return plt
 
-	
+def getClassifier():
+	with open('forest/forest02.pickle', 'rb') as f:
+		clf = cPickle.load(f)
+	return clf
+
 def stop(k, tuis=None):
 	
 	# press q for quit
@@ -66,7 +71,6 @@ def stop(k, tuis=None):
 			
 	# press g for get all rawImg thresh and letter
 	elif k & 0xFF == ord('g'):
-		
 		if tuis is not None:
 			ts = time.time()
 			for i,tui in zip( range(len(tuis)), tuis):
@@ -76,19 +80,48 @@ def stop(k, tuis=None):
 			print 'saved',len(tuis)
 		else:
 			print "no tui detected"
+			
+	# press o for print position
+	if k & 0xFF == ord('o'):
+		if tuis is not None:
+			for tui in tuis:
+				print tui.position
+		else:
+			print "No tui for display position"
+		
 	# default continue tui-tanu
 	return True
 
+def labelTui(board, tuis):
+	# init font
+	font = cv2.FONT_HERSHEY_SIMPLEX
 	
+	for tui in tuis:
+		if tui.name is None: # check label
+			print 'tui has no name'
+		else:
+			if tui.position[0] == 'v':
+				cv2.putText(board.vertical2,tui.name,tui.position[1], font, 1,(255,0,0),4)
+			elif tui.position[0] == 'h':
+				cv2.putText(board.horizontal2,tui.name,tui.position[1], font, 1,(255,0,0),4)
+			else:
+				print 'invalid tui position:', tui
+	return 0
+
 def main():
 
+	
+	
 	#camera setup
 	cap = cv2.VideoCapture(0)
 	print 'Video resolution: '+' x '.join(set_res(cap,1280,720))
 	tuis = []
 	ret = True
+	clf = getClassifier()
 	while ret:
-	
+		# time controller
+		now = time.time() # get the time
+		
 		# get image
 		ret, rawImg = cap.read()
 		if ret is False:
@@ -103,10 +136,19 @@ def main():
 		if board.horizontalCircles is not None or board.verticalCircles is not None:
 			board.drawCircles()
 			tuis = board.getTuis()
+			print len(tuis),'tuis found'
 			for tui in tuis:
 				tui.getLetter()
-			
-			
+				if tui.letter.size == 0:
+					print 'letter size 0'
+					continue
+				letterPercentage = float(np.count_nonzero(tui.letter))/tui.letter.size*100.0
+				if  letterPercentage > 3.9: # if letter area is more than 3.9% of img
+					tui.getHuMoment()
+					tui.getTuiName(clf)
+				else:
+					print 'invalid letter area percentage:', letterPercentage
+			labelTui(board,tuis)
 			# if there is a letter in each tui:
 				# get Hu moments from letter
 				# classify and print label direct on image
@@ -155,6 +197,14 @@ def main():
 			ret = stop(cv2.waitKey(1), tuis)
 		else:
 			ret = stop(cv2.waitKey(1))
+		
+		# time controller
+		elapsed = time.time() - now  # how long was it running?
+		if elapsed < 0.2:
+			time.sleep(0.2-elapsed)       # sleep accordingly so the full iteration takes 1 second
+		elapsed = time.time() - now  # how long was it running?
+		print str(elapsed)+":",
+			
 	cv2.destroyAllWindows()
 		
 	

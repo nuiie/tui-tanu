@@ -59,8 +59,7 @@ class Board:
 			self.horizontal = np.uint8(self.getPerspectiveTransform([297*size,210*size]))
 		else:
 			print 'Board not found'
-	
-	
+		
 	def getPerspectiveTransform(self, wh):
 	
 		point = []
@@ -119,7 +118,7 @@ class Board:
 				y1 = center[1]-radius
 				x2 = center[0]+radius
 				y2 = center[1]+radius
-				eachTui = Tui(self.vertical[y1:y2,x1:x2],center)
+				eachTui = Tui(self.vertical[y1:y2,x1:x2],['v',center])
 				tuiVer.append(eachTui)
 				
 		if self.horizontalCircles is not None:
@@ -130,7 +129,7 @@ class Board:
 				y1 = center[1]-radius
 				x2 = center[0]+radius
 				y2 = center[1]+radius
-				eachTui = Tui(self.horizontal[y1:y2,x1:x2],center)
+				eachTui = Tui(self.horizontal[y1:y2,x1:x2],['h',center])
 				tuiHor.append(eachTui)
 		v = len(tuiVer)
 		h = len(tuiHor)

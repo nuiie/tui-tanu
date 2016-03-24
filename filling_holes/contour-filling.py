@@ -1,14 +1,14 @@
 import cv2
 import numpy as np
 
-img = cv2.imread("1458306694.10.png",1)
-gray = cv2.imread("1458306694.10.png",0)
-_, thresh = cv2.threshold(gray,0,255,cv2.THRESH_BINARY+cv2.THRESH_OTSU)
+# img = cv2.imread("verA41457501954.264.png",1)
+gray = cv2.imread("1458723741.797.png",0)
+# _, thresh = cv2.threshold(gray,0,255,cv2.THRESH_BINARY+cv2.THRESH_OTSU)
 
 
 # des = cv2.bitwise_not(gray)
 
-kernel = cv2.getStructuringElement(cv2.MORPH_ELLIPSE,(3,3))
+# kernel = cv2.getStructuringElement(cv2.MORPH_ELLIPSE,(3,3))
 # des = cv2.erode(thresh,kernel,iterations = 1)
 # des = cv2.morphologyEx(thresh, cv2.MORPH_CLOSE, kernel)
 # des = cv2.morphologyEx(thresh, cv2.MORPH_OPEN, kernel)
@@ -23,9 +23,9 @@ kernel = cv2.getStructuringElement(cv2.MORPH_ELLIPSE,(3,3))
 # gray = cv2.bitwise_not(des)
 # cv2.imwrite('img3.png',gray)
 
-
-cv2.imshow('img',img)
+print float(np.count_nonzero(gray))/gray.size*100.0
+# cv2.imshow('img',img)
 cv2.imshow('gray',gray)
-cv2.imshow('thresh',thresh)
-cv2.imshow('des',des)
+# cv2.imshow('thresh',thresh)
+# cv2.imshow('des',des)
 cv2.waitKey()
