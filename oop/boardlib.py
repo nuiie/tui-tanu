@@ -41,7 +41,8 @@ class Board:
 			if len(approx) == 4:
 				boardCnt = approx
 				break
-				
+		if boardCnt is None:
+			print 'No board'
 		# draw board and archive contour
 		cv2.drawContours(self.boardDetect, [boardCnt], -1, (0, 255, 0), 3)
 		self.boardCnt = boardCnt
@@ -84,10 +85,9 @@ class Board:
 		# find circle
 		self.verticalCircles 	= cv2.HoughCircles( cv2.cvtColor(self.vertical,cv2.COLOR_BGR2GRAY) ,cv2.cv.CV_HOUGH_GRADIENT,1,minCalRad,param1=50,param2=30,minRadius=minCalRad,maxRadius=maxCalRad)
 		self.horizontalCircles	= cv2.HoughCircles( cv2.cvtColor(self.horizontal,cv2.COLOR_BGR2GRAY) ,cv2.cv.CV_HOUGH_GRADIENT,1,minCalRad,param1=50,param2=30,minRadius=minCalRad,maxRadius=maxCalRad)
-	
+		
 
-	def drawCircles(self):
-		self.getCircle()
+	def drawCircles(self): 
 		if self.verticalCircles is not None:
 			self.vertical2 = self.vertical.copy()
 			for i in self.verticalCircles[0,:]:
@@ -105,10 +105,12 @@ class Board:
 				cv2.circle(self.horizontal2,(i[0],i[1]),i[2],(0,255,0),2)
 				# draw the center of the circle
 				cv2.circle(self.horizontal2,(i[0],i[1]),2,(0,0,255),3)
-				
+		else:
+			print "Both a4 is None Dont draw circle just yet"
 				
 	def getTuis(self):
-		tui = []
+		tuiVer = []
+		tuiHor = []
 		if self.verticalCircles is not None:
 			for i in self.verticalCircles[0,:]:		
 				center = (i[0],i[1])
@@ -118,7 +120,7 @@ class Board:
 				x2 = center[0]+radius
 				y2 = center[1]+radius
 				eachTui = Tui(self.vertical[y1:y2,x1:x2],center)
-				tui.append(eachTui)
+				tuiVer.append(eachTui)
 				
 		if self.horizontalCircles is not None:
 			for i in self.horizontalCircles[0,:]:		
@@ -129,5 +131,16 @@ class Board:
 				x2 = center[0]+radius
 				y2 = center[1]+radius
 				eachTui = Tui(self.horizontal[y1:y2,x1:x2],center)
-				tui.append(eachTui)
-		return tui
+				tuiHor.append(eachTui)
+		v = len(tuiVer)
+		h = len(tuiHor)
+		if h == 0 and v == 0:
+			print 'return no tui'
+			return tuiHor
+		elif v >= h:
+			return tuiVer
+		elif h >= v:
+			return tuiHor
+		elif h == v:
+			print 'return tuiHor+tuiVer'
+			return tuiHor+tuiVer

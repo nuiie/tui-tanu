@@ -19,7 +19,9 @@ class Tui:
 	
 	
 	def getLetter(self):
-	
+		if self.thresh is None:
+			print "no thresh for getLetter"
+			return 0
 		contours, hierarchy = cv2.findContours( self.thresh.copy() ,cv2.RETR_TREE,cv2.CHAIN_APPROX_SIMPLE)
 		
 		# sort contours by cnt area / img area ratio from max to min

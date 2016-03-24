@@ -19,7 +19,7 @@ def plot(tuis):
 		plt.subplot(row,row,i+1)
 		plt.imshow(tuis[i].letter)
 		if tuis[i].name is not None:
-			plt.title(tuis[i].rawImg)
+			plt.title(tuis[i].name)
 		else:	
 			plt.title(str(i))
 		plt.xticks([]),plt.yticks([])
@@ -63,15 +63,29 @@ def stop(k, tuis=None):
 			print 'saved',len(tuis)
 		else:
 			print "no tui detected"
+			
+	# press g for get all rawImg thresh and letter
+	elif k & 0xFF == ord('g'):
+		
+		if tuis is not None:
+			ts = time.time()
+			for i,tui in zip( range(len(tuis)), tuis):
+				cv2.imwrite('.\\image\\rawImg\\'+str(ts)+str(i)+'.png',tui.rawImg)
+				cv2.imwrite('.\\image\\thresh\\'+str(ts)+str(i)+'.png',tui.thresh)
+				cv2.imwrite('.\\image\\letter\\'+str(ts)+str(i)+'.png',tui.letter)
+			print 'saved',len(tuis)
+		else:
+			print "no tui detected"
 	# default continue tui-tanu
 	return True
 
+	
 def main():
 
 	#camera setup
 	cap = cv2.VideoCapture(0)
 	print 'Video resolution: '+' x '.join(set_res(cap,1280,720))
-	
+	tuis = []
 	ret = True
 	while ret:
 	
@@ -82,16 +96,33 @@ def main():
 			break
 		board = Board(rawImg)
 		
-		board.getA4(size = 5)
-		board.drawCircles()
+		board.getA4(size = 4)
+		board.getCircle()
+		
+		# check if circles in A4
+		if board.horizontalCircles is not None or board.verticalCircles is not None:
+			board.drawCircles()
+			tuis = board.getTuis()
+			for tui in tuis:
+				tui.getLetter()
+			
+			
+			# if there is a letter in each tui:
+				# get Hu moments from letter
+				# classify and print label direct on image
+			# else :
+				# print something direct on imgae
+			
+			
+		else:
+			print 'No circle in both hor and ver a4'
 		
 		
-		tuis = board.getTuis()
-		n = len(tuis)
-		if n > 0:
-			for i,tui in zip(range(n),tuis):
-				if tui.thresh is not None:
-					pass
+		# n = len(tuis)
+		# if n > 0:
+			# for i,tui in zip(range(n),tuis):
+				# if tui.thresh is not None:
+					# pass
 					# a = tui.getLetter()
 				# cv2.imshow(str(i), tui.rawImg)
 				# cv2.imshow(str(i)+"thresh", tui.thresh)
@@ -128,9 +159,6 @@ def main():
 		
 	
 	return 0	
-		
-		
-		
-		
-		
+
+	
 main()
