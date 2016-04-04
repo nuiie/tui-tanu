@@ -149,31 +149,11 @@ def main():
 				else:
 					print 'invalid letter area percentage:', letterPercentage
 			labelTui(board,tuis)
-			# if there is a letter in each tui:
-				# get Hu moments from letter
-				# classify and print label direct on image
-			# else :
-				# print something direct on imgae
-			
 			
 		else:
 			print 'No circle in both hor and ver a4'
 		
-		
-		# n = len(tuis)
-		# if n > 0:
-			# for i,tui in zip(range(n),tuis):
-				# if tui.thresh is not None:
-					# pass
-					# a = tui.getLetter()
-				# cv2.imshow(str(i), tui.rawImg)
-				# cv2.imshow(str(i)+"thresh", tui.thresh)
-				# if a is not None:
-				# cv2.imshow(str(i)+"letter", tui.letter)
-					# print "found"
-				# else:
-					# print None
-				
+	
 				
 				
 		# display
