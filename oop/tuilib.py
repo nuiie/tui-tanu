@@ -86,3 +86,25 @@ class Tui:
 				self.name = "B juk"
 			else:
 				self.name = prediction
+				
+class TuiLegit:
+	
+	def __init__(self, pos, winSize):
+		self.position			= (float(pos[0]),float(pos[1]))
+		self.winSize			= winSize
+		self.matchFlag			= [1]+[0]*(winSize-1) # set 1's flag for last frame and 0's for prevoius
+		self.reached			= True
+	
+	def posMatched(self, pos): # update pos
+		# wight average position
+		w1 = 1 # weight of old pos
+		w2 = 2 # weight of new pos
+		self.position = ((w1*self.position[0] + w2*pos[0])/float(w1+w2), (w1*self.position[1] + w2*pos[1])/float(w1+w2))
+		self.matchFlag.insert(0,1) 	# set match flag
+		self.matchFlag.pop()		# set match flag
+		self.reached = True
+		
+	def shiftMatchFlag(self):
+		self.matchFlag.insert(0,0) 	# set match flag
+		self.matchFlag.pop()		# set match flag
+		self.reached = True
