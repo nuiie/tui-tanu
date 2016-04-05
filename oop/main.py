@@ -1,5 +1,6 @@
 from tuilib import Tui
 from boardlib import Board
+from causallib import causalBox
 from matplotlib import pyplot as plt
 import cv2
 import time
@@ -116,8 +117,8 @@ def main():
 	cap = cv2.VideoCapture(1)
 	print 'Video resolution: '+' x '.join(set_res(cap,1280,720))
 	tuis = []
-	hLegitTuis = []
-	vLegitTuis = []
+	hBox = causalBox(winSize = 10)
+	vBox = causalBox(winSize = 10)
 	ret = True
 	clf = getClassifier()
 	while ret:
@@ -130,9 +131,13 @@ def main():
 			print "Error aquring image"
 			break
 		board = Board(rawImg)
-		
 		board.getA4(size = 4)
 		board.getCircle()
+		
+		# setup causal Box
+		lenNeighbor = np.round(board.size*210/14)
+		vBox.setThresh(lenNeighbor)
+		hBox.setThresh(lenNeighbor)
 		
 		# check if circles in A4
 		if board.horizontalCircles is not None or board.verticalCircles is not None:
@@ -140,12 +145,10 @@ def main():
 			tuis = board.getTuis()
 			print len(tuis),'tuis found'
 			
-			# split h and v tuis
+			
 			hTuiTmp = []
 			vTuiTmp = []
 			for tui in tuis:
-				
-				 
 				# latter + name
 				tui.getLetter()
 				if tui.letter.size == 0:
@@ -156,34 +159,34 @@ def main():
 						tui.getHuMoment()
 						tui.getTuiName(clf)
 					else:
-						print 'invalid letter area percentage:', letterPercentage
+						print 'too less letter area percentage:', letterPercentage
 				
-				# if tui.position[0] == 'h':
-					# hTuiTmp.append((tui.position[1],tui.name))
-				# elif tui.position[0] == 'v':
-					# vTuiTmp.append((tui.position[1],tui.name))
-				# else: print "invalid h/v tui position"
-			labelTui(board,tuis)
+				# split h and v tuis for feed in box
+				if tui.position[0] == 'h':
+					hTuiTmp.append((tui.position[1],tui.name))
+				elif tui.position[0] == 'v':
+					vTuiTmp.append((tui.position[1],tui.name))
+				else: print "invalid h/v tui position"
+			
+			# labelTui(board,tuis)
 			
 			
-				
 			
+			hBox.feedIn(hTuiTmp)
+			vBox.feedIn(vTuiTmp)
+			print "hLegit:", len(hBox.tuis)
+			print "vLegit:", len(vBox.tuis)
 			
-			
-			# lenNeighbor = np.round(board.size*210/14)
-			# causalPos(hLegitTuis, hTuiTmp, lenNeighbor, 5)
-			# causalPos(vLegitTuis, vTuiTmp, lenNeighbor, 5)
-			# print "hLegit:", len(hLegitTuis), lenNeighbor
-			# a = board.horizontal.copy()
-			
-			# for i in hLegitTuis:
-				
-				# # draw the outer circle
-				# cv2.circle(a,i.position,np.round(board.size*210/14),(0,255,0),2)
-				# # draw the center of the circle
-				# cv2.circle(a,i.position,2,(0,0,255),3)
-			# cv2.namedWindow('a', cv2.WINDOW_NORMAL)
-			# cv2.imshow('a',a)
+			a = board.horizontal.copy()
+			for i in hBox.tuis:
+				# draw the outer circle
+				cv2.circle(a,i.position,np.round(board.size*210/14),(0,255,0),2)
+				# draw the center of the circle
+				cv2.circle(a,i.position,2,(0,0,255),3)
+				# write name on img
+				cv2.putText(a, i.getVotedName()[0][0], i.position, cv2.FONT_HERSHEY_SIMPLEX, 1,(255,0,0),4)
+			cv2.namedWindow('a', cv2.WINDOW_NORMAL)
+			cv2.imshow('a',a)
 			
 			
 			

@@ -2,38 +2,40 @@ from tuilib import TuiLegit
 import math
 
 class causalBox():
-	# class __docc__
-	"caussal Box compute previeus frames for more accurae and stability"
+	# class __doc__
+	"caussal Box compute previeus frames for more accurate and stability"
 	
-	
-	
-	def __init__(self, winSize, tuis, thresh):
+	def __init__(self, winSize):
+		self.winSize		= winSize
+		self.thresh			= None
+		self.tuis 			= []
 		
-		
-	def distance(p0, p1):
+	def setThresh(self, thresh):
+		self.thresh = thresh
+	
+	def distance(self, p0, p1):
 		return math.sqrt((p0[0] - p1[0])**2 + (p0[1] - p1[1])**2)
 	
-		
-	def feedIn(tuis, frame, thresh, winSize):
-		# causal position box for stablize tui marking position
-		
-		for tui in tuis: # set reached flag
+	
+	
+	def feedIn(self, frame):
+		for tui in self.tuis: # set reached flag
 			tui.reached = False
 		
 		for pos, name in frame:
 			# tui check in
 			match = False # set match flag before start matching
-			for tui in tuis:
-				if distance(pos,tui.position) <= thresh: # if tui match
+			for tui in self.tuis:
+				if self.distance(pos,tui.position) <= self.thresh: # if tui match
 					tui.posMatched(pos, name)
 					match = True
 					break
 			if match == False: # no tui match
-				tuis.append(TuiLegit(pos, winSize, name)) # append new tui
+				self.tuis.append(TuiLegit(pos, self.winSize, name)) # append new tui
 			
 		# tui check up
-		for tui in tuis:
+		for tui in self.tuis:
 			if not tui.reached: # add up match flag
 				tui.shiftMatchFlagAndName()
 			if 1 not in tui.matchFlag: # check to destroy any tui
-				tuis.remove(tui)
+				self.tuis.remove(tui)

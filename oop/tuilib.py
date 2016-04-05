@@ -1,6 +1,7 @@
 import numpy as np
 import cv2
 from sklearn.ensemble import RandomForestClassifier
+from collections import Counter
 
 class Tui:
 	"Tui class for each tui. Contain tui's property"
@@ -119,3 +120,7 @@ class TuiLegit:
 			return self.matchFlag.count(1) >= n
 		else:
 			return self.matchFlag.count(1) >= len(self.matchFlag)/2.0
+			
+	def getVotedName(self):
+		data = Counter(self.name)
+		return data.most_common(1)
