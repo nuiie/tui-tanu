@@ -46,8 +46,7 @@ class Board:
 		# draw board and archive contour
 		cv2.drawContours(self.boardDetect, [boardCnt], -1, (0, 255, 0), 3)
 		self.boardCnt = boardCnt
-		
-		
+			
 	def getA4(self, size=1):
 	
 		self.size = size
@@ -73,7 +72,6 @@ class Board:
 		dst = cv2.warpPerspective(self.rawImg.copy(),M,(w,h))
 		return dst
 	
-	
 	def getCircle(self):
 		
 		# calculate max min rad based on a4 size image
@@ -85,7 +83,6 @@ class Board:
 		self.verticalCircles 	= cv2.HoughCircles( cv2.cvtColor(self.vertical,cv2.COLOR_BGR2GRAY) ,cv2.cv.CV_HOUGH_GRADIENT,1,minCalRad,param1=50,param2=30,minRadius=minCalRad,maxRadius=maxCalRad)
 		self.horizontalCircles	= cv2.HoughCircles( cv2.cvtColor(self.horizontal,cv2.COLOR_BGR2GRAY) ,cv2.cv.CV_HOUGH_GRADIENT,1,minCalRad,param1=50,param2=30,minRadius=minCalRad,maxRadius=maxCalRad)
 		
-
 	def drawCircles(self): 
 		if self.verticalCircles is not None:
 			self.vertical2 = self.vertical.copy()

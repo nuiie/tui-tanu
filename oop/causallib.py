@@ -16,8 +16,6 @@ class causalBox():
 	def distance(self, p0, p1):
 		return math.sqrt((p0[0] - p1[0])**2 + (p0[1] - p1[1])**2)
 	
-	
-	
 	def feedIn(self, frame):
 		for tui in self.tuis: # set reached flag
 			tui.reached = False
@@ -39,3 +37,4 @@ class causalBox():
 				tui.shiftMatchFlagAndName()
 			if 1 not in tui.matchFlag: # check to destroy any tui
 				self.tuis.remove(tui)
+				

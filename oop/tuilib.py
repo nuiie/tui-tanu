@@ -119,7 +119,7 @@ class TuiLegit:
 		if n is not None:
 			return self.matchFlag.count(1) >= n
 		else:
-			return self.matchFlag.count(1) >= len(self.matchFlag)/2.0
+			return self.matchFlag.count(1) >= winSize*0.8
 			
 	def getVotedName(self):
 		data = Counter(self.name)
