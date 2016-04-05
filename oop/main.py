@@ -1,4 +1,5 @@
 from tuilib import Tui
+from tuilib import TuiLegit
 from boardlib import Board
 from matplotlib import pyplot as plt
 import cv2
@@ -6,6 +7,7 @@ import time
 import numpy as np
 import cPickle
 from sklearn.ensemble import RandomForestClassifier
+import math
 
 def set_res(cap, x,y):
 	cap.set(cv2.cv.CV_CAP_PROP_FRAME_WIDTH, int(x))
@@ -108,14 +110,43 @@ def labelTui(board, tuis):
 				print 'invalid tui position:', tui
 	return 0
 
+def distance(p0, p1):
+    return math.sqrt((p0[0] - p1[0])**2 + (p0[1] - p1[1])**2)
+	
+def causalPos(tuis, frame, thresh, winSize):
+	# causal position box for stablize tui marking position
+	
+	for tui in tuis: # set reached flag
+		tui.reached = False
+	
+	for pos, name in frame:
+		# tui check in
+		match = False # set match flag before start matching
+		for tui in tuis:
+			if distance(pos,tui.position) <= thresh: # if tui match
+				tui.posMatched(pos, name)
+				match = True
+				break
+		if match == False: # no tui match
+			tuis.append(TuiLegit(pos, winSize, name)) # append new tui
+		
+	# tui check up
+	for tui in tuis:
+		if not tui.reached: # add up match flag
+			tui.shiftMatchFlagAndName()
+		if 1 not in tui.matchFlag: # check to destroy any tui
+			tuis.remove(tui)
+	
 def main():
 
 	
 	
 	#camera setup
-	cap = cv2.VideoCapture(0)
+	cap = cv2.VideoCapture(1)
 	print 'Video resolution: '+' x '.join(set_res(cap,1280,720))
 	tuis = []
+	hLegitTuis = []
+	vLegitTuis = []
 	ret = True
 	clf = getClassifier()
 	while ret:
@@ -137,18 +168,58 @@ def main():
 			board.drawCircles()
 			tuis = board.getTuis()
 			print len(tuis),'tuis found'
+			
+			# split h and v tuis
+			hTuiTmp = []
+			vTuiTmp = []
 			for tui in tuis:
+				
+				 
+				# latter + name
 				tui.getLetter()
 				if tui.letter.size == 0:
 					print 'letter size 0'
-					continue
-				letterPercentage = float(np.count_nonzero(tui.letter))/tui.letter.size*100.0
-				if  letterPercentage > 3.9: # if letter area is more than 3.9% of img
-					tui.getHuMoment()
-					tui.getTuiName(clf)
 				else:
-					print 'invalid letter area percentage:', letterPercentage
-			labelTui(board,tuis)
+					letterPercentage = float(np.count_nonzero(tui.letter))/tui.letter.size*100.0
+					if  letterPercentage > 3.9: # if letter area is more than 3.9% of img
+						tui.getHuMoment()
+						tui.getTuiName(clf)
+					else:
+						print 'invalid letter area percentage:', letterPercentage
+				
+				if tui.position[0] == 'h':
+					hTuiTmp.append((tui.position[1],tui.name))
+				elif tui.position[0] == 'v':
+					vTuiTmp.append((tui.position[1],tui.name))
+				else: print "invalid h/v tui position"
+				
+			
+			
+				
+			
+			
+			
+			lenNeighbor = np.round(board.size*210/14)
+			causalPos(hLegitTuis, hTuiTmp, lenNeighbor, 5)
+			causalPos(vLegitTuis, vTuiTmp, lenNeighbor, 5)
+			print "hLegit:", len(hLegitTuis), lenNeighbor
+			a = board.horizontal.copy()
+			
+			for i in hLegitTuis:
+				
+				# draw the outer circle
+				cv2.circle(a,i.position,np.round(board.size*210/14),(0,255,0),2)
+				# draw the center of the circle
+				cv2.circle(a,i.position,2,(0,0,255),3)
+			cv2.namedWindow('a', cv2.WINDOW_NORMAL)
+			cv2.imshow('a',a)
+			
+			
+			
+			# print "vLegit:", len(vLegitTuis)
+			
+			
+			
 			
 		else:
 			print 'No circle in both hor and ver a4'

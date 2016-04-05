@@ -89,22 +89,33 @@ class Tui:
 				
 class TuiLegit:
 	
-	def __init__(self, pos, winSize):
-		self.position			= (float(pos[0]),float(pos[1]))
+	def __init__(self, pos, winSize, name):
+		self.position			= pos #(float(pos[0]),float(pos[1]))
 		self.winSize			= winSize
 		self.matchFlag			= [1]+[0]*(winSize-1) # set 1's flag for last frame and 0's for prevoius
 		self.reached			= True
+		self.name				= [name]+[None]*(winSize-1)
 	
-	def posMatched(self, pos): # update pos
+	def posMatched(self, pos, name): # update pos
 		# wight average position
-		w1 = 1 # weight of old pos
+		w1 = 5 # weight of old pos
 		w2 = 2 # weight of new pos
-		self.position = ((w1*self.position[0] + w2*pos[0])/float(w1+w2), (w1*self.position[1] + w2*pos[1])/float(w1+w2))
+		self.position = (int((w1*self.position[0] + w2*pos[0])/float(w1+w2)), int((w1*self.position[1] + w2*pos[1])/float(w1+w2)))
 		self.matchFlag.insert(0,1) 	# set match flag
 		self.matchFlag.pop()		# set match flag
+		self.name.insert(0,name) 	# set name
+		self.name.pop()				# set name
 		self.reached = True
 		
-	def shiftMatchFlag(self):
+	def shiftMatchFlagAndName(self):
 		self.matchFlag.insert(0,0) 	# set match flag
 		self.matchFlag.pop()		# set match flag
+		self.matchFlag.insert(0,None) 	# set name
+		self.matchFlag.pop()			# set name
 		self.reached = True
+		
+	def isLegit(self, n=None):
+		if n is not None:
+			return self.matchFlag.count(1) >= n
+		else:
+			return self.matchFlag.count(1) >= len(self.matchFlag)/2.0

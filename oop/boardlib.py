@@ -122,7 +122,7 @@ class Board:
 				tuiVer.append(eachTui)
 				
 		if self.horizontalCircles is not None:
-			for i in self.horizontalCircles[0,:]:		
+			for i in self.horizontalCircles[0,:]:
 				center = (i[0],i[1])
 				radius = self.size*297/19
 				x1 = center[0]-radius

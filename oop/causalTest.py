@@ -4,21 +4,7 @@ import math
 def distance(p0, p1):
     return math.sqrt((p0[0] - p1[0])**2 + (p0[1] - p1[1])**2)
 
-def tuiCheckIn(pos):
-	# if pos match tuis[n]
-	# do someting with that tuis[n]
-	
-	# else create new tuis[n] and append
-		
 
-	return 0
-	
-def tuiCheckUp():
-	# check up
-	# check if theere is any tuis[n] to destroy
-	# check to mod all pos and count all tuis
-			
-	return 0
 	
 def input():
 
