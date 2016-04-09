@@ -9,7 +9,7 @@ class Tui:
 	def __init__(self, rawImg, position):
 	
 		self.rawImg 			= rawImg
-		self.position			= position
+		self.position			= position # [h, center] -> ['h', (x1,y1)]
 		self.gray				= cv2.cvtColor(rawImg,cv2.COLOR_BGR2GRAY)
 		self.hsv				= cv2.cvtColor(rawImg,cv2.COLOR_BGR2HSV)
 		_, self.thresh			= cv2.threshold(self.gray,0,255,cv2.THRESH_BINARY+cv2.THRESH_OTSU)
@@ -96,6 +96,8 @@ class TuiLegit:
 		self.matchFlag			= [1]+[0]*(winSize-1) # set 1's flag for last frame and 0's for prevoius
 		self.reached			= True
 		self.name				= [name]+[None]*(winSize-1)
+		self.votedName			= None
+		self.score				= 0
 	
 	def posMatched(self, pos, name): # update pos
 		# wight average position
@@ -123,4 +125,37 @@ class TuiLegit:
 			
 	def getVotedName(self):
 		data = Counter(self.name)
-		return data.most_common(1)
+		self.votedName = data.most_common(1)
+		return self.votedName
+		
+	def getScore(self):
+		if self.votedName = "B juk"
+			self.score = 1
+		elif self.votedName = "R juk"
+			self.score = 2
+		elif self.votedName = "B Phao"
+			self.score = 3
+		elif self.votedName = "R Phao"
+			self.score = 4
+		elif self.votedName = "B Horse"
+			self.score = 5
+		elif self.votedName = "R Horse"
+			self.score = 6
+		elif self.votedName = "B Boat"
+			self.score = 7
+		elif self.votedName = "R Boat"
+			self.score = 8
+		elif self.votedName = "B Ele"
+			self.score = 9
+		elif self.votedName = 'R Ele'
+			self.score = 10
+		elif self.votedName = "B Fly"
+			self.score = 11
+		elif self.votedName	= "R Fly"
+			self.score = 12
+		elif self.votedName = 'B T'
+			self.score = 13
+		elif self.votedName = 'R T'
+			self.score = 14
+		else:
+			self.score = 0
