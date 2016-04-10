@@ -159,3 +159,4 @@ class TuiLegit:
 			self.score = 14
 		else:
 			self.score = 0
+		return self.score
