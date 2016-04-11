@@ -186,26 +186,17 @@ def main():
 					cv2.circle(a,i.position,2,(0,0,255),3)
 					# write name on img
 					cv2.putText(a, i.getVotedName()[0][0], i.position, cv2.FONT_HERSHEY_SIMPLEX, 1,(255,0,0),4)
-				else:
+				else: 
 					# draw the outer circle
 					cv2.circle(a,i.position,np.round(board.size*210/14),(0,0,255),2)
 					# draw the center of the circle
 					cv2.circle(a,i.position,2,(0,0,255),3)
 			cv2.namedWindow('a', cv2.WINDOW_NORMAL)
 			cv2.imshow('a',a)
-			
-			
-			
-			# print "vLegit:", len(vLegitTuis)
-			
-			
-			
+
 			
 		else:
 			print 'No circle in both hor and ver a4'
-		
-	
-				
 				
 		# display
 		cv2.namedWindow('rawImg', cv2.WINDOW_NORMAL)

@@ -22,7 +22,7 @@ class Player:
 	def putSubRoundScore(self, score):
 		self.subRoundScore = score
 	
-	def getSubRoundScore(self):
+	def getSubRoundScore(self): 
 		score = 0
 		for tui in self.tuisSubRound:
 			score += tui.getScore()
@@ -121,10 +121,3 @@ class GameCtrler:
 		print "endBoard"
 		return 0
 	# ==============================================================================
-	
-	
-	def showGameStats():
-		return 0
-		
-	def showPlayerStats():
-		return 0
