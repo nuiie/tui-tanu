@@ -58,15 +58,15 @@ class Tui:
 			prediction = str(int(classifier.predict(self.huMoment.reshape(1,-1)))) # reshape for single sample 
 			
 			if prediction == '2':
-				self.name = 'R T'
+				self.name = "R T"
 			elif prediction == '3':
-				self.name = 'B T'
+				self.name = "B T"
 			elif prediction == '4':
 				self.name = "R Fly"
 			elif prediction == '5':
 				self.name = "B Fly"
 			elif prediction == '6':
-				self.name = 'R Ele'
+				self.name = "R Ele"
 			elif prediction == '7':
 				self.name = "B Ele"
 			elif prediction == '8':
@@ -129,33 +129,33 @@ class TuiLegit:
 		return self.votedName
 		
 	def getScore(self):
-		if self.votedName = "B juk"
+		if self.votedName == "B juk":
 			self.score = 1
-		elif self.votedName = "R juk"
+		elif self.votedName == "R juk":
 			self.score = 2
-		elif self.votedName = "B Phao"
+		elif self.votedName == "B Phao":
 			self.score = 3
-		elif self.votedName = "R Phao"
+		elif self.votedName == "R Phao":
 			self.score = 4
-		elif self.votedName = "B Horse"
+		elif self.votedName == "B Horse":
 			self.score = 5
-		elif self.votedName = "R Horse"
+		elif self.votedName == "R Horse":
 			self.score = 6
-		elif self.votedName = "B Boat"
+		elif self.votedName == "B Boat":
 			self.score = 7
-		elif self.votedName = "R Boat"
+		elif self.votedName == "R Boat":
 			self.score = 8
-		elif self.votedName = "B Ele"
+		elif self.votedName == "B Ele":
 			self.score = 9
-		elif self.votedName = 'R Ele'
+		elif self.votedName == "R Ele":
 			self.score = 10
-		elif self.votedName = "B Fly"
+		elif self.votedName == "B Fly":
 			self.score = 11
-		elif self.votedName	= "R Fly"
+		elif self.votedName	== "R Fly":
 			self.score = 12
-		elif self.votedName = 'B T'
+		elif self.votedName == "B T":
 			self.score = 13
-		elif self.votedName = 'R T'
+		elif self.votedName == "R T":
 			self.score = 14
 		else:
 			self.score = 0
