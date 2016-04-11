@@ -1,5 +1,4 @@
 from playerlib import GameCtrler
-from playerlib import ScoreBoard
 from playerlib import Player
 from tuilib import TuiLegit
 import numpy as np
@@ -34,7 +33,7 @@ plyName = ["a", "b", "c", "d"]
 plyArea	= [[(0,0),(5,5)], [(0,6),(5,10)], [(6,0),(10,5)], [(6,6),(10,10)]]
 game = gameInit(plyName, plyArea)
 
-
+"""
 def splitTui(game, tuis):
 	print "split tuis"
 	game.findHolder(tuis)
@@ -53,11 +52,39 @@ def subround(game):
 	
 	print "cal subroundScore"
 	game.calSubRoundScore()
-	winner = game.calSubRoundWinner()
+	winner = game.findSubRoundWinner()
 	print "winner: "+str(winner)
 	game.calSumSubRoundScore(winner)
 	for x in game.players:
 		print x.name, x.subRoundScore, x.sumSubRoundScore
-	return 0
+	print "return game"
+	print
+	return game
 	
-subround(game)
+game = subround(game)
+"""
+
+def endSubRound(game, tuis):
+	print "endsubround"
+	for x in game.players:
+		print x.name, x.subRoundScore, x.sumSubRoundScore
+	print game.subRoundLeft, game.boardScore
+
+	game.endSubRound(tuis)
+	for x in game.players:
+		print x.name, x.subRoundScore, x.sumSubRoundScore
+	print game.subRoundLeft, game.boardScore
+	
+	game.endSubRound(tuis)
+	for x in game.players:
+		print x.name, x.subRoundScore, x.sumSubRoundScore
+	print game.subRoundLeft, game.boardScore
+	
+	game.endSubRound(tuis)
+	for x in game.players:
+		print x.name, x.subRoundScore, x.sumSubRoundScore
+	print game.subRoundLeft, game.boardScore
+	print
+	return game
+	
+game = endSubRound(game, tuis)
