@@ -37,4 +37,3 @@ class causalBox():
 				tui.shiftMatchFlagAndName()
 			if 1 not in tui.matchFlag: # check to destroy any tui
 				self.tuis.remove(tui)
-				

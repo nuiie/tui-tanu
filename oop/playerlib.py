@@ -2,12 +2,15 @@ from tuilib import TuiLegit
 
 class Player:
 	"Control palyer stats"
-	def __init__(self, name, area):
+	def __init__(self, name):
 		self.name				= name
 		self.subRoundScore		= 0
-		self.area				= area	# [(x1,y,1),(x2,y2)]
+		self.area				= []	# [(x1,y,1),(x2,y2)]
 		self.tuisSubRound		= [] 	# tmp for calculate subround score
 		self.sumSubRoundScore	= -2
+	
+	def putArea(self,area):
+		self.area = area
 		
 	def putTui(self, tui): # append 1 by 1
 		self.tuisSubRound.append(tui)
@@ -32,12 +35,21 @@ class GameCtrler:
 	# class __doc__
 	"Control game mechanic (win/lose)"
 	
-	def __init__(self, name, area):
-		self.players		= [Player(i,j) for i,j in zip(name,area)] # create 4 players
-		self.boardScore 	= [[],[],[],[],[],[],[],[],[]] # [ [game score], 10 times ] => [[2,2,-2,-2], [0,0,1,-1], ...]
+	def __init__(self, name):
+		self.players		= [Player(i) for i in name] # create 4 players
+		self.boardScore 	= [] # [ [game score], 10 times ] => [[2,2,-2,-2], [0,0,1,-1], ...]
 		self.leader			= 0
 		self.subRoundLeft 	= 8
 	
+	def setArea(self, img):
+		i = img.shape[0]  #    Player Index
+		j = img.shape[1]  # [   0   |   1   ]
+		a = int(i/2)	  # [   3   |   2   ]
+		b = int(j/2)
+		area = [[(0,0),(a,b)], [(0,b+1),(a,j)], [(a+1,b+1),(i,j)], [(a+1,0),(i,b)]]
+		for p,a in zip(self.players, area):
+			p.putArea(a)
+		
 	# ================================== SubRound ==================================
 	# what to do when endSubRound
 	# 0.) check if this endsubround is also end round
@@ -89,7 +101,7 @@ class GameCtrler:
 	def resetSubRound(self):
 		for p in self.players:
 			p.tuisSubRound	= []
-			subRoundScore	=0
+			subRoundScore	= 0
 	# ==============================================================================
 	
 	# ==================================== Round ====================================
@@ -109,7 +121,7 @@ class GameCtrler:
 		
 	def resetRoundStats(self): # player stats + subRound left
 		for p in self.players:
-			p.sumSubRoundScore	= -2
+			p.sumSubRoundScore = -2
 		self.subRoundLeft = 8
 	# ==============================================================================
 	

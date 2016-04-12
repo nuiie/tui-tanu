@@ -1,6 +1,7 @@
 from tuilib import Tui
 from boardlib import Board
 from causallib import causalBox
+from playerlib import GameCtrler
 from matplotlib import pyplot as plt
 import cv2
 import time
@@ -33,24 +34,19 @@ def getClassifier():
 	return clf
 
 def stop(k, tuis=None):
-	
-	# press q for quit
-	if k & 0xFF == ord('q'):
+	if k & 0xFF == ord('q'): 	# press q for quit
+
 		print "exit"
 		return False
 		
-	# press p for plot detected tuis
-	elif k & 0xFF == ord('p'):
-		
+	elif k & 0xFF == ord('p'): 	# press p for plot detected tuis
 		if tuis is not None:
 			print "plot"
 			plot(tuis).show()
 		else:
 			print "no tui detected"
 			
-	# press s for save detected tuis
-	elif k & 0xFF == ord('s'):
-		
+	elif k & 0xFF == ord('s'): 	# press s for save detected tuis
 		if tuis is not None:
 			ts = time.time()
 			for i,tui in zip( range(len(tuis)), tuis):
@@ -59,9 +55,7 @@ def stop(k, tuis=None):
 		else:
 			print "no tui detected"
 			
-	# press t for save thresh 
-	elif k & 0xFF == ord('t'):
-		
+	elif k & 0xFF == ord('t'): 	# press t for save thresh 
 		if tuis is not None:
 			ts = time.time()
 			for i,tui in zip( range(len(tuis)), tuis):
@@ -70,8 +64,7 @@ def stop(k, tuis=None):
 		else:
 			print "no tui detected"
 			
-	# press g for get all rawImg thresh and letter
-	elif k & 0xFF == ord('g'):
+	elif k & 0xFF == ord('g'):  # press g for get all rawImg thresh and letter
 		if tuis is not None:
 			ts = time.time()
 			for i,tui in zip( range(len(tuis)), tuis):
@@ -81,38 +74,15 @@ def stop(k, tuis=None):
 			print 'saved',len(tuis)
 		else:
 			print "no tui detected"
-			
-	# press o for print position
-	if k & 0xFF == ord('o'):
-		if tuis is not None:
-			for tui in tuis:
-				print tui.position
-		else:
-			print "No tui for display position"
-		
-	# default continue tui-tanu
+	
+	elif k & 0xFF == ord(' '): 	# press spaecbar for end subround
+		pass
+					
 	return True
-
-def labelTui(board, tuis):
-	# init font
-	font = cv2.FONT_HERSHEY_SIMPLEX
 	
-	for tui in tuis:
-		if tui.name is None: # check label
-			print 'tui has no name'
-		else:
-			if tui.position[0] == 'v':
-				cv2.putText(board.vertical2,tui.name,tui.position[1], font, 1,(255,0,0),4)
-			elif tui.position[0] == 'h':
-				cv2.putText(board.horizontal2,tui.name,tui.position[1], font, 1,(255,0,0),4)
-			else:
-				print 'invalid tui position:', tui
-	return 0
 
+	
 def main():
-
-	
-	
 	#camera setup
 	cap = cv2.VideoCapture(1)
 	print 'Video resolution: '+' x '.join(set_res(cap,1280,720))
@@ -121,11 +91,10 @@ def main():
 	vBox = causalBox(winSize = 10)
 	ret = True
 	clf = getClassifier()
+	plyerName = ["John","Doe","Tommy","Emmanuel"]
+	game = GameCtrler(plyerName)
 	while ret:
-		# time controller
 		now = time.time() # get the time
-		
-		# get image
 		ret, rawImg = cap.read()
 		if ret is False:
 			print "Error aquring image"
@@ -143,13 +112,10 @@ def main():
 		if board.horizontalCircles is not None or board.verticalCircles is not None:
 			board.drawCircles()
 			tuis = board.getTuis()
-			print len(tuis),'tuis found'
-			
 			
 			hTuiTmp = []
 			vTuiTmp = []
-			for tui in tuis:
-				# latter + name
+			for tui in tuis: # latter + name
 				tui.getLetter()
 				if tui.letter.size == 0:
 					print 'letter size 0'
@@ -158,75 +124,64 @@ def main():
 					if  letterPercentage > 3.9: # if letter area is more than 3.9% of img
 						tui.getHuMoment()
 						tui.getTuiName(clf)
-					else:
-						print 'too less letter area percentage:', letterPercentage
-				
-				# split h and v tuis for feed in box
+				# split h and v tuis for feed in causalbox
 				if tui.position[0] == 'h':
 					hTuiTmp.append((tui.position[1],tui.name))
 				elif tui.position[0] == 'v':
 					vTuiTmp.append((tui.position[1],tui.name))
-				else: print "invalid h/v tui position"
+				else: print "invalid h/v tui position"		
 			
-			# labelTui(board,tuis)
-			
-			
-			
-			hBox.feedIn(hTuiTmp)
+		
+			hBox.feedIn(hTuiTmp) # feed causalbox
 			vBox.feedIn(vTuiTmp)
-			print "hLegit:", len(hBox.tuis)
-			print "vLegit:", len(vBox.tuis)
 			
-			a = board.horizontal.copy()
-			for i in hBox.tuis:
+			# choose v or h
+			a = board.vertical.copy() if len(vBox.tuis) > len(hBox.tuis) else board.horizontal.copy()
+			b = vBox.tuis if len(vBox.tuis) > len(hBox.tuis) else hBox.tuis
+			
+			game.setArea(a) #set player area
+			
+			
+			
+			for i in b:
+				cv2.circle(a,i.position,np.round(board.size*210/14),(0,255,0),2) # draw the outer circle
+				cv2.circle(a,i.position,2,(0,0,255),3) # draw the center of the circle
 				if i.isLegit:
-					# draw the outer circle
-					cv2.circle(a,i.position,np.round(board.size*210/14),(0,255,0),2)
-					# draw the center of the circle
-					cv2.circle(a,i.position,2,(0,0,255),3)
-					# write name on img
-					cv2.putText(a, i.getVotedName()[0][0], i.position, cv2.FONT_HERSHEY_SIMPLEX, 1,(255,0,0),4)
-				else: 
-					# draw the outer circle
-					cv2.circle(a,i.position,np.round(board.size*210/14),(0,0,255),2)
-					# draw the center of the circle
-					cv2.circle(a,i.position,2,(0,0,255),3)
+					cv2.putText(a, i.getVotedName()[0][0], i.position, cv2.FONT_HERSHEY_SIMPLEX, 1,(255,0,0),4) # write name on img
 			cv2.namedWindow('a', cv2.WINDOW_NORMAL)
 			cv2.imshow('a',a)
 
-			
 		else:
 			print 'No circle in both hor and ver a4'
 				
 		# display
-		cv2.namedWindow('rawImg', cv2.WINDOW_NORMAL)
-		cv2.imshow('rawImg',board.rawImg)
 		cv2.namedWindow('thresh', cv2.WINDOW_NORMAL)
 		cv2.imshow('thresh',board.thresh)
 		cv2.namedWindow('boardDetect', cv2.WINDOW_NORMAL)
 		cv2.imshow('boardDetect',board.boardDetect)
-		cv2.namedWindow('vertical', cv2.WINDOW_NORMAL)
-		cv2.imshow('vertical',board.vertical)
-		cv2.namedWindow('horizontal', cv2.WINDOW_NORMAL)
-		cv2.imshow('horizontal',board.horizontal)
-		cv2.namedWindow('vertical2', cv2.WINDOW_NORMAL)
-		cv2.imshow('vertical2',board.vertical2)
-		cv2.namedWindow('horizontal2', cv2.WINDOW_NORMAL)
-		cv2.imshow('horizontal2',board.horizontal2)
 	
 		# condition for exit
-		if len(tuis) > 0:
-			ret = stop(cv2.waitKey(1), tuis)
-		else:
-			ret = stop(cv2.waitKey(1))
+		# if len(tuis) > 0:
+			# ret = stop(cv2.waitKey(1), tuis)
+		# else:
+			# ret = stop(cv2.waitKey(1))
 		
+		k = cv2.waitKey(1)
+		if k & 0xFF == ord('q'): 	# press q for quit
+			print "exit"
+			return False
+		elif k & 0xFF == ord(' '):  # end subround
+			game.endSubRound(b)
+			for p in game.players:
+				print p.name, p.tuisSubRound, p.sumSubRoundScore
+			print game.boardScore
 		# time controller
 		elapsed = time.time() - now  # how long was it running?
 		if elapsed < 0.2:
 			time.sleep(0.2-elapsed)       # sleep accordingly so the full iteration takes 1 second
 		elapsed = time.time() - now  # how long was it running?
 		print str(elapsed)+":",
-			
+	
 	cv2.destroyAllWindows()
 		
 	
