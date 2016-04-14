@@ -1,4 +1,6 @@
 from tuilib import TuiLegit
+import numpy as np
+
 
 class Player:
 	"Control palyer stats"
@@ -8,6 +10,7 @@ class Player:
 		self.area				= []	# [(x1,y,1),(x2,y2)]
 		self.tuisSubRound		= [] 	# tmp for calculate subround score
 		self.sumSubRoundScore	= -2
+		self.pColor				= None
 	
 	def putArea(self,area):
 		self.area = area
@@ -30,7 +33,13 @@ class Player:
 		for tui in self.tuisSubRound:
 			score += tui.getScore()
 		return score
-				 
+	
+	def putColor(self, color):
+		self.pColor = color
+		
+# class Score:
+	
+		
 class GameCtrler:
 	# class __doc__
 	"Control game mechanic (win/lose)"
@@ -40,7 +49,8 @@ class GameCtrler:
 		self.boardScore 	= [] # [ [game score], 10 times ] => [[2,2,-2,-2], [0,0,1,-1], ...]
 		self.leader			= 0
 		self.subRoundLeft 	= 8
-	
+		self.bScoreImg		= None
+
 	def setArea(self, img):
 		i = img.shape[0]  #    Player Index
 		j = img.shape[1]  # [   0   |   1   ]
@@ -48,25 +58,28 @@ class GameCtrler:
 		b = int(j/2)
 		area = [[(0,0),(a,b)], [(0,b+1),(a,j)], [(a+1,b+1),(i,j)], [(a+1,0),(i,b)]]
 		for p,a in zip(self.players, area):
-			p.putArea(a)
+			p.putArea(a)	
+		h = img.shape[0] # set scoreImg
+		w = img.shape[1]*1.5
+		self.bScoreImg = np.zeros((h,w,3), np.uint8)
 		
 	# ================================== SubRound ==================================
-	# what to do when endSubRound
+	# what to do when endSubRound # !!!! THIS COMMEND IS NOT UP TO DATE !!!!!
 	# 0.) check if this endsubround is also end round
 	# 1.) get all tuis in board
 	# 2.) find tuis holder
 	# 3.) cal tui subround score
-	#  3.1) check if tui sell
+	#  3.1) check if tui sell  # SECQUENCE HAS BEEN CHANGED
 	# 4.) find winner
 	#  4.1) update sumSubRound score
 	#  4.2) update subRound left
 	
 	def endSubRound(self, tuis):
+		self.resetSubRound()
 		self.findHolder(tuis)
 		self.calSubRoundScore()
 		self.findSubRoundWinner()
 		self.calSumSubRoundScore()
-		self.resetSubRound()
 		if self.subRoundLeft <= 0:
 			self.endRound()
 	
@@ -133,3 +146,21 @@ class GameCtrler:
 		print "endBoard"
 		return 0
 	# ==============================================================================
+	
+	# ================================== Show Score ================================
+	def showScoreBoard(self):
+		return self.bScoreImg
+		
+	def setColor(self):
+		self.setPColor()
+		self.setBColor()
+	
+	def setBColor(self):
+		for p in self.players:
+			a = p.area
+			self.bScoreImg[a[0][0]:a[1][0], a[0][1]:a[1][1]] = p.pColor
+		
+	def setPColor(self):
+		color = [(0,255,255), (255,0,0), (0,0,255), (0,255,0)] # color : yellow blue red green
+		for p,c in zip(self.players,color):
+			p.pColor = c

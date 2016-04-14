@@ -35,7 +35,6 @@ def getClassifier():
 
 def stop(k, tuis=None):
 	if k & 0xFF == ord('q'): 	# press q for quit
-
 		print "exit"
 		return False
 		
@@ -80,11 +79,21 @@ def stop(k, tuis=None):
 					
 	return True
 	
-
+def playerDebug(k, game, b=None):
+	if k & 0xFF == ord('q'): 	# press q for quit
+		print "exit"
+		return False
+	elif k & 0xFF == ord(' '):  # end subround
+		game.endSubRound(b)
+		for p in game.players:
+			print p.name, [t.votedName for t in p.tuisSubRound], p.sumSubRoundScore
+		print game.boardScore
+		return True
+	return True
 	
 def main():
 	#camera setup
-	cap = cv2.VideoCapture(1)
+	cap = cv2.VideoCapture(0)
 	print 'Video resolution: '+' x '.join(set_res(cap,1280,720))
 	tuis = []
 	hBox = causalBox(winSize = 10)
@@ -93,6 +102,7 @@ def main():
 	clf = getClassifier()
 	plyerName = ["John","Doe","Tommy","Emmanuel"]
 	game = GameCtrler(plyerName)
+	b = None
 	while ret:
 		now = time.time() # get the time
 		ret, rawImg = cap.read()
@@ -100,7 +110,7 @@ def main():
 			print "Error aquring image"
 			break
 		board = Board(rawImg)
-		board.getA4(size = 4)
+		board.getA4(size = 2)
 		board.getCircle()
 		
 		# setup causal Box
@@ -140,7 +150,7 @@ def main():
 			b = vBox.tuis if len(vBox.tuis) > len(hBox.tuis) else hBox.tuis
 			
 			game.setArea(a) #set player area
-			
+			game.setColor()
 			
 			
 			for i in b:
@@ -150,7 +160,10 @@ def main():
 					cv2.putText(a, i.getVotedName()[0][0], i.position, cv2.FONT_HERSHEY_SIMPLEX, 1,(255,0,0),4) # write name on img
 			cv2.namedWindow('a', cv2.WINDOW_NORMAL)
 			cv2.imshow('a',a)
-
+			
+			cv2.namedWindow('score', cv2.WINDOW_NORMAL)
+			cv2.imshow('score',game.showScoreBoard())
+			
 		else:
 			print 'No circle in both hor and ver a4'
 				
@@ -166,15 +179,11 @@ def main():
 		# else:
 			# ret = stop(cv2.waitKey(1))
 		
-		k = cv2.waitKey(1)
-		if k & 0xFF == ord('q'): 	# press q for quit
-			print "exit"
-			return False
-		elif k & 0xFF == ord(' '):  # end subround
-			game.endSubRound(b)
-			for p in game.players:
-				print p.name, p.tuisSubRound, p.sumSubRoundScore
-			print game.boardScore
+		if b is None:
+			ret = playerDebug(cv2.waitKey(1), game)
+		else:
+			ret = playerDebug(cv2.waitKey(1), game, b)
+			
 		# time controller
 		elapsed = time.time() - now  # how long was it running?
 		if elapsed < 0.2:
@@ -187,5 +196,4 @@ def main():
 	
 	return 0	
 
-	
 main()

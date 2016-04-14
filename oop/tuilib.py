@@ -7,7 +7,6 @@ class Tui:
 	"Tui class for each tui. Contain tui's property"
 	
 	def __init__(self, rawImg, position):
-	
 		self.rawImg 			= rawImg
 		self.position			= position # [h, center] -> ['h', (x1,y1)]
 		self.gray				= cv2.cvtColor(rawImg,cv2.COLOR_BGR2GRAY)
