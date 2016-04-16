@@ -1,14 +1,13 @@
 from tuilib import TuiLegit
 import numpy as np
 
-
 class Player:
 	"Control palyer stats"
 	def __init__(self, name):
 		self.name				= name
 		self.subRoundScore		= 0
 		self.area				= []	# [(x1,y,1),(x2,y2)]
-		self.tuisSubRound		= [] 	# tmp for calculate subround score
+		self.tuisSubRound		= [] 	# all tuis before endRound [[tuiLegit1, tuiLegit2], [.....]]
 		self.sumSubRoundScore	= -2
 		self.pColor				= None
 	
@@ -37,9 +36,6 @@ class Player:
 	def putColor(self, color):
 		self.pColor = color
 		
-# class Score:
-	
-		
 class GameCtrler:
 	# class __doc__
 	"Control game mechanic (win/lose)"
@@ -50,8 +46,9 @@ class GameCtrler:
 		self.leader			= 0
 		self.subRoundLeft 	= 8
 		self.bScoreImg		= None
+		self.pScoreImg		= None
 
-	def setArea(self, img):
+	def setArea(self, img): # set player area and create score img
 		i = img.shape[0]  #    Player Index
 		j = img.shape[1]  # [   0   |   1   ]
 		a = int(i/2)	  # [   3   |   2   ]
@@ -60,9 +57,10 @@ class GameCtrler:
 		for p,a in zip(self.players, area):
 			p.putArea(a)	
 		h = img.shape[0] # set scoreImg
-		w = img.shape[1]*1.5
+		w = img.shape[1]
 		self.bScoreImg = np.zeros((h,w,3), np.uint8)
-		
+		self.pScoreImg = np.zeros((h,w*0.5,3), np.uint8)
+	
 	# ================================== SubRound ==================================
 	# what to do when endSubRound # !!!! THIS COMMEND IS NOT UP TO DATE !!!!!
 	# 0.) check if this endsubround is also end round
@@ -73,7 +71,6 @@ class GameCtrler:
 	# 4.) find winner
 	#  4.1) update sumSubRound score
 	#  4.2) update subRound left
-	
 	def endSubRound(self, tuis):
 		self.resetSubRound()
 		self.findHolder(tuis)
@@ -121,7 +118,6 @@ class GameCtrler:
 	# what to do when endRound
 	# 1.) put sumSubRound of each player score to score board
 	# 2.) reset player subround stats
-	
 	def endRound(self):
 		self.putRoundScore()
 		self.resetRoundStats()
@@ -140,17 +136,19 @@ class GameCtrler:
 	
 	# ================================== endBoard =================================
 	# what to do when endBoard
-	# 1.) sum score for each player
-	
+	# 1.) sum score for each player	
 	def endBoard(self):
 		print "endBoard"
 		return 0
 	# ==============================================================================
 	
 	# ================================== Show Score ================================
-	def showScoreBoard(self):
-		return self.bScoreImg
-		
+	def getScoreBoard(self):
+		self.setColor()
+		self.writePlayerStats()
+		self.writeBoardStats()
+		return np.concatenate((self.pScoreImg,self.bScoreImg), axis=1)
+	
 	def setColor(self):
 		self.setPColor()
 		self.setBColor()
@@ -164,3 +162,19 @@ class GameCtrler:
 		color = [(0,255,255), (255,0,0), (0,0,255), (0,255,0)] # color : yellow blue red green
 		for p,c in zip(self.players,color):
 			p.pColor = c
+		
+	def writePlayerStats(self):
+		rts = len(self.players[0].tuisSubRound)  # rts: row to show
+		rsw = 25 # rw: row space width
+		for p in self.players: # wirte name
+				cv2.putText(self.pScoreImg, p.name, (p.area[0][1],p.area[0][0]+rsw, cv2.FONT_HERSHEY_SIMPLEX, 1,(255,255,255),2)
+		for i in range(rts): # write subround score
+			for p in self.players:
+				cv2.putText(self.pScoreImg,[t.votedName for t in p.tuisSubRound[i]], (p[0][1],p[0][0]+rsw*(i+2)), cv2.FONT_HERSHEY_SIMPLEX, 1,(255,255,255),2)
+	
+	def writeBoardStats(self):
+		rsw = 25 # rw: row space width
+		cv2.putText(self.bScoreImg, "subRound Left: "+str(self.subRoundLeft), (0,rsw), cv2.FONT_HERSHEY_SIMPLEX, 1,(255,255,255),2)
+		for i in range(len(self.boardScore)): # print write board score
+				cv2.putText(self.bScoreImg, self.boardScore[i], (0,0+rsw*(i+2)), cv2.FONT_HERSHEY_SIMPLEX, 1,(255,255,255),2)
+			

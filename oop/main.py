@@ -149,9 +149,7 @@ def main():
 			a = board.vertical.copy() if len(vBox.tuis) > len(hBox.tuis) else board.horizontal.copy()
 			b = vBox.tuis if len(vBox.tuis) > len(hBox.tuis) else hBox.tuis
 			
-			game.setArea(a) #set player area
-			game.setColor()
-			
+			game.setArea(a) #set player area			
 			
 			for i in b:
 				cv2.circle(a,i.position,np.round(board.size*210/14),(0,255,0),2) # draw the outer circle
@@ -162,7 +160,7 @@ def main():
 			cv2.imshow('a',a)
 			
 			cv2.namedWindow('score', cv2.WINDOW_NORMAL)
-			cv2.imshow('score',game.showScoreBoard())
+			cv2.imshow('score',game. ())
 			
 		else:
 			print 'No circle in both hor and ver a4'
