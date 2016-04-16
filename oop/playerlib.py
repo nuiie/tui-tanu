@@ -7,7 +7,7 @@ class Player:
 		self.name				= name
 		self.subRoundScore		= 0
 		self.area				= []	# [(x1,y,1),(x2,y2)]
-		self.tuisSubRound		= [] 	# all tuis before endRound [[tuiLegit1, tuiLegit2], [.....]]
+		self.tuisSubRound		= [] 	# all tuis before endRound [[tuiLegit1, tuiLegit2], [.....]] index0:recent 1:previous
 		self.sumSubRoundScore	= -2
 		self.pColor				= None
 	
@@ -22,8 +22,59 @@ class Player:
 		
 	# shouldn't be in player class
 	def isNotSell(self): # check if tuis is not against the rules
-		return True # need rules
-		
+		return True
+		t = self.tuisSubRound
+		if len(t) == 0: # no tui found
+			return False
+		elif len(t) == 1:
+			return True
+		elif len(t) == 2:
+			if t[0].votedName == t[1].votedName
+				return True
+			else:
+				return False
+		elif len(t) == 3:
+			if all(x.votedName == "R juk" for x in t) or all(x.votedName == "B juk" for x in t)
+				return True
+			elif all(x in [n.votedName for n in t] for x in ["R T","R Fly","R Ele"])
+				return True
+			elif all(x in [n.votedName for n in t] for x in ["B T","B Fly","B Ele"])
+				return True
+			elif all(x in [n.votedName for n in t] for x in ["R Boat","R Horse","R Phao"])
+				return True
+			elif all(x in [n.votedName for n in t] for x in ["B Boat","B Horse","B Phao"])
+				return True
+			else:
+				return False
+		elif len(t) == 4:
+			if all(x.votedName == "R juk" for x in t) or all(x.votedName == "B juk" for x in t)
+				return True
+			elif all(x in [n.votedName for n in t] for x in ["R T","R Fly","R Ele"])
+				return True
+			elif all(x in [n.votedName for n in t] for x in ["B T","B Fly","B Ele"])
+				return True
+			elif all(x in [n.votedName for n in t] for x in ["R Boat","R Horse","R Phao"])
+				return True
+			elif all(x in [n.votedName for n in t] for x in ["B Boat","B Horse","B Phao"])
+				return True
+			else:
+				return False
+		elif len(t) == 5:
+			if all(x.votedName == "R juk" for x in t) or all(x.votedName == "B juk" for x in t)
+				return True
+			elif all(x in [n.votedName for n in t] for x in ["R T","R Fly","R Ele"])
+				return True
+			elif all(x in [n.votedName for n in t] for x in ["B T","B Fly","B Ele"])
+				return True
+			elif all(x in [n.votedName for n in t] for x in ["R Boat","R Horse","R Phao"])
+				return True
+			elif all(x in [n.votedName for n in t] for x in ["B Boat","B Horse","B Phao"])
+				return True
+			else:
+				return False
+		else:
+			return False
+			
 	def putSubRoundScore(self, score):
 		self.subRoundScore = score
 	
