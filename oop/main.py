@@ -79,14 +79,14 @@ def stop(k, tuis=None):
 					
 	return True
 	
-def playerDebug(k, game, b=None):
+def playerDebug(k, game, causalTuis=None):
 	if k & 0xFF == ord('q'): 	# press q for quit
 		print "exit"
 		return False
 	elif k & 0xFF == ord(' '):  # end subround
-		game.endSubRound(b)
+		game.endSubRound(causalTuis[:])
 		for p in game.players:
-			print p.name, [t.votedName for t in p.tuisSubRound], p.sumSubRoundScore
+			print p.name, [t.votedName for t in p.tuisSubRound[0]], p.sumSubRoundScore
 		print game.boardScore
 		return True
 	return True
@@ -102,7 +102,7 @@ def main():
 	clf = getClassifier()
 	plyerName = ["John","Doe","Tommy","Emmanuel"]
 	game = GameCtrler(plyerName)
-	b = None
+	causalTuis = None
 	while ret:
 		now = time.time() # get the time
 		ret, rawImg = cap.read()
@@ -110,7 +110,7 @@ def main():
 			print "Error aquring image"
 			break
 		board = Board(rawImg)
-		board.getA4(size = 2)
+		board.getA4(size = 4)
 		board.getCircle()
 		
 		# setup causal Box
@@ -146,21 +146,21 @@ def main():
 			vBox.feedIn(vTuiTmp)
 			
 			# choose v or h
-			a = board.vertical.copy() if len(vBox.tuis) > len(hBox.tuis) else board.horizontal.copy()
-			b = vBox.tuis if len(vBox.tuis) > len(hBox.tuis) else hBox.tuis
+			causalBoard = board.vertical.copy() if len(vBox.tuis) > len(hBox.tuis) else board.horizontal.copy()
+			causalTuis = vBox.tuis[:] if len(vBox.tuis) > len(hBox.tuis) else hBox.tuis[:]
 			
-			game.setArea(a) #set player area			
+			game.setArea(causalBoard) #set player area			
 			
-			for i in b:
-				cv2.circle(a,i.position,np.round(board.size*210/14),(0,255,0),2) # draw the outer circle
-				cv2.circle(a,i.position,2,(0,0,255),3) # draw the center of the circle
+			for i in causalTuis:
+				cv2.circle(causalBoard ,i.position,np.round(board.size*210/14),(0,255,0),2) # draw the outer circle
+				cv2.circle(causalBoard ,i.position,2,(0,0,255),3) # draw the center of the circle
 				if i.isLegit:
-					cv2.putText(a, i.getVotedName()[0][0], i.position, cv2.FONT_HERSHEY_SIMPLEX, 1,(255,0,0),4) # write name on img
+					cv2.putText(causalBoard, i.getVotedName(), i.position, cv2.FONT_HERSHEY_SIMPLEX, 1,(255,0,0),4) # write name on img
 			cv2.namedWindow('a', cv2.WINDOW_NORMAL)
-			cv2.imshow('a',a)
+			cv2.imshow('a',causalBoard)
 			
 			cv2.namedWindow('score', cv2.WINDOW_NORMAL)
-			cv2.imshow('score',game. ())
+			cv2.imshow('score',game.getScoreBoard())
 			
 		else:
 			print 'No circle in both hor and ver a4'
@@ -177,17 +177,17 @@ def main():
 		# else:
 			# ret = stop(cv2.waitKey(1))
 		
-		if b is None:
+		if causalTuis is None:
 			ret = playerDebug(cv2.waitKey(1), game)
 		else:
-			ret = playerDebug(cv2.waitKey(1), game, b)
+			ret = playerDebug(cv2.waitKey(1), game, causalTuis)
 			
 		# time controller
 		elapsed = time.time() - now  # how long was it running?
 		if elapsed < 0.2:
 			time.sleep(0.2-elapsed)       # sleep accordingly so the full iteration takes 1 second
 		elapsed = time.time() - now  # how long was it running?
-		print str(elapsed)+":",
+		# print str(elapsed)+":",
 	
 	cv2.destroyAllWindows()
 		

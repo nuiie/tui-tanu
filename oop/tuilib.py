@@ -124,7 +124,7 @@ class TuiLegit:
 			
 	def getVotedName(self):
 		data = Counter(self.name)
-		self.votedName = data.most_common(1)
+		self.votedName = data.most_common(1)[0][0]
 		return self.votedName
 		
 	def getScore(self):

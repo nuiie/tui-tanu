@@ -1,5 +1,7 @@
 from tuilib import TuiLegit
 import numpy as np
+import cv2
+import copy
 
 class Player:
 	"Control palyer stats"
@@ -15,10 +17,10 @@ class Player:
 		self.area = area
 		
 	def putTui(self, tui): # append 1 by 1
-		self.tuisSubRound.append(tui)
+		self.tuisSubRound[0].append(copy.copy(tui))
 		
 	def isInMe(self, point):
-		return all([ self.area[0][i] <= point[i] <= self.area[1][i] for i in range(2)])
+		return all([ self.area[0][i] <= point[1-i] <= self.area[1][i] for i in range(2)])
 		
 	# shouldn't be in player class
 	def isNotSell(self): # check if tuis is not against the rules
@@ -29,46 +31,46 @@ class Player:
 		elif len(t) == 1:
 			return True
 		elif len(t) == 2:
-			if t[0].votedName == t[1].votedName
+			if t[0].votedName == t[1].votedName:
 				return True
 			else:
 				return False
 		elif len(t) == 3:
-			if all(x.votedName == "R juk" for x in t) or all(x.votedName == "B juk" for x in t)
+			if all(x.votedName == "R juk" for x in t) or all(x.votedName == "B juk" for x in t):
 				return True
-			elif all(x in [n.votedName for n in t] for x in ["R T","R Fly","R Ele"])
+			elif all(x in [n.votedName for n in t] for x in ["R T","R Fly","R Ele"]):
 				return True
-			elif all(x in [n.votedName for n in t] for x in ["B T","B Fly","B Ele"])
+			elif all(x in [n.votedName for n in t] for x in ["B T","B Fly","B Ele"]):
 				return True
-			elif all(x in [n.votedName for n in t] for x in ["R Boat","R Horse","R Phao"])
+			elif all(x in [n.votedName for n in t] for x in ["R Boat","R Horse","R Phao"]):
 				return True
-			elif all(x in [n.votedName for n in t] for x in ["B Boat","B Horse","B Phao"])
+			elif all(x in [n.votedName for n in t] for x in ["B Boat","B Horse","B Phao"]):
 				return True
 			else:
 				return False
 		elif len(t) == 4:
-			if all(x.votedName == "R juk" for x in t) or all(x.votedName == "B juk" for x in t)
+			if all(x.votedName == "R juk" for x in t) or all(x.votedName == "B juk" for x in t):
 				return True
-			elif all(x in [n.votedName for n in t] for x in ["R T","R Fly","R Ele"])
+			elif all(x in [n.votedName for n in t] for x in ["R T","R Fly","R Ele"]):
 				return True
-			elif all(x in [n.votedName for n in t] for x in ["B T","B Fly","B Ele"])
+			elif all(x in [n.votedName for n in t] for x in ["B T","B Fly","B Ele"]):
 				return True
-			elif all(x in [n.votedName for n in t] for x in ["R Boat","R Horse","R Phao"])
+			elif all(x in [n.votedName for n in t] for x in ["R Boat","R Horse","R Phao"]):
 				return True
-			elif all(x in [n.votedName for n in t] for x in ["B Boat","B Horse","B Phao"])
+			elif all(x in [n.votedName for n in t] for x in ["B Boat","B Horse","B Phao"]):
 				return True
 			else:
 				return False
 		elif len(t) == 5:
-			if all(x.votedName == "R juk" for x in t) or all(x.votedName == "B juk" for x in t)
+			if all(x.votedName == "R juk" for x in t) or all(x.votedName == "B juk" for x in t):
 				return True
-			elif all(x in [n.votedName for n in t] for x in ["R T","R Fly","R Ele"])
+			elif all(x in [n.votedName for n in t] for x in ["R T","R Fly","R Ele"]):
 				return True
-			elif all(x in [n.votedName for n in t] for x in ["B T","B Fly","B Ele"])
+			elif all(x in [n.votedName for n in t] for x in ["B T","B Fly","B Ele"]):
 				return True
-			elif all(x in [n.votedName for n in t] for x in ["R Boat","R Horse","R Phao"])
+			elif all(x in [n.votedName for n in t] for x in ["R Boat","R Horse","R Phao"]):
 				return True
-			elif all(x in [n.votedName for n in t] for x in ["B Boat","B Horse","B Phao"])
+			elif all(x in [n.votedName for n in t] for x in ["B Boat","B Horse","B Phao"]):
 				return True
 			else:
 				return False
@@ -80,7 +82,7 @@ class Player:
 	
 	def getSubRoundScore(self): 
 		score = 0
-		for tui in self.tuisSubRound:
+		for tui in self.tuisSubRound[0]:
 			score += tui.getScore()
 		return score
 	
@@ -109,19 +111,10 @@ class GameCtrler:
 			p.putArea(a)	
 		h = img.shape[0] # set scoreImg
 		w = img.shape[1]
-		self.bScoreImg = np.zeros((h,w,3), np.uint8)
-		self.pScoreImg = np.zeros((h,w*0.5,3), np.uint8)
+		self.pScoreImg = np.zeros((h,w,3), np.uint8)
+		self.bScoreImg = np.zeros((h,w*0.5,3), np.uint8)
 	
 	# ================================== SubRound ==================================
-	# what to do when endSubRound # !!!! THIS COMMEND IS NOT UP TO DATE !!!!!
-	# 0.) check if this endsubround is also end round
-	# 1.) get all tuis in board
-	# 2.) find tuis holder
-	# 3.) cal tui subround score
-	#  3.1) check if tui sell  # SECQUENCE HAS BEEN CHANGED
-	# 4.) find winner
-	#  4.1) update sumSubRound score
-	#  4.2) update subRound left
 	def endSubRound(self, tuis):
 		self.resetSubRound()
 		self.findHolder(tuis)
@@ -133,10 +126,10 @@ class GameCtrler:
 	
 	def findHolder(self, tuis):
 		holdCount = 0
-		for tui in tuis:  
-			for player in self.players:
-				if player.isInMe(tui.position):
-					player.putTui(tui)
+		for t in tuis:  
+			for p in self.players:
+				if p.isInMe(t.position):
+					p.putTui(t)
 					holdCount += 1
 					break
 		print str(len(tuis))+"tuis found.", str(holdCount)+"found holders"
@@ -155,42 +148,37 @@ class GameCtrler:
 		
 	def calSumSubRoundScore(self): # need more secure
 		winnerIndex = self.leader
-		numEat = len(self.players[winnerIndex].tuisSubRound)
+		numEat = len(self.players[winnerIndex].tuisSubRound[0])
 		self.players[winnerIndex].sumSubRoundScore += numEat
 		self.subRoundLeft -= numEat
 	
 	def resetSubRound(self):
 		for p in self.players:
-			p.tuisSubRound	= []
+			p.tuisSubRound.insert(0,[])
 			subRoundScore	= 0
 	# ==============================================================================
 	
 	# ==================================== Round ====================================
-	# what to do when endRound
-	# 1.) put sumSubRound of each player score to score board
-	# 2.) reset player subround stats
 	def endRound(self):
 		self.putRoundScore()
 		self.resetRoundStats()
 		if len(self.boardScore)%10 == 0:
 			self.endBoard()
-		
+			
 	def putRoundScore(self):
-		roundScore = [x.sumSubRoundScore for x in self.players]
-		self.boardScore.append(roundScore)
-		
+		self.boardScore.append([s.sumSubRoundScore for s in self.players])
+	
 	def resetRoundStats(self): # player stats + subRound left
 		for p in self.players:
 			p.sumSubRoundScore = -2
+			p.tuisSubRound = [[]]
 		self.subRoundLeft = 8
 	# ==============================================================================
 	
 	# ================================== endBoard =================================
-	# what to do when endBoard
-	# 1.) sum score for each player	
 	def endBoard(self):
-		print "endBoard"
-		return 0
+		self.boardScore.append([sum([ x[i] for x in self.boardScore]) for i in range(4)])
+
 	# ==============================================================================
 	
 	# ================================== Show Score ================================
@@ -199,15 +187,15 @@ class GameCtrler:
 		self.writePlayerStats()
 		self.writeBoardStats()
 		return np.concatenate((self.pScoreImg,self.bScoreImg), axis=1)
-	
+		
 	def setColor(self):
 		self.setPColor()
-		self.setBColor()
+		self.setPScoreImgColor()
 	
-	def setBColor(self):
+	def setPScoreImgColor(self):
 		for p in self.players:
 			a = p.area
-			self.bScoreImg[a[0][0]:a[1][0], a[0][1]:a[1][1]] = p.pColor
+			self.pScoreImg[a[0][0]:a[1][0], a[0][1]:a[1][1]] = p.pColor
 		
 	def setPColor(self):
 		color = [(0,255,255), (255,0,0), (0,0,255), (0,255,0)] # color : yellow blue red green
@@ -216,16 +204,23 @@ class GameCtrler:
 		
 	def writePlayerStats(self):
 		rts = len(self.players[0].tuisSubRound)  # rts: row to show
-		rsw = 25 # rw: row space width
+		rsw = 35 # rw: row space width
 		for p in self.players: # wirte name
-				cv2.putText(self.pScoreImg, p.name, (p.area[0][1],p.area[0][0]+rsw, cv2.FONT_HERSHEY_SIMPLEX, 1,(255,255,255),2)
+			cv2.putText(self.pScoreImg, p.name+" "+str(p.sumSubRoundScore), (p.area[0][1],p.area[0][0]+rsw), cv2.FONT_HERSHEY_SIMPLEX, 1.5,(255,255,255),2)
+		# print rts
 		for i in range(rts): # write subround score
 			for p in self.players:
-				cv2.putText(self.pScoreImg,[t.votedName for t in p.tuisSubRound[i]], (p[0][1],p[0][0]+rsw*(i+2)), cv2.FONT_HERSHEY_SIMPLEX, 1,(255,255,255),2)
-	
+				cv2.putText(self.pScoreImg, str([t.votedName for t in p.tuisSubRound[i]]), (p.area[0][1],p.area[0][0]+rsw*(i+2)), cv2.FONT_HERSHEY_SIMPLEX, 1,(255,255,255),2)
+				
 	def writeBoardStats(self):
-		rsw = 25 # rw: row space width
+		rsw = 50 # rw: row space width
 		cv2.putText(self.bScoreImg, "subRound Left: "+str(self.subRoundLeft), (0,rsw), cv2.FONT_HERSHEY_SIMPLEX, 1,(255,255,255),2)
 		for i in range(len(self.boardScore)): # print write board score
-				cv2.putText(self.bScoreImg, self.boardScore[i], (0,0+rsw*(i+2)), cv2.FONT_HERSHEY_SIMPLEX, 1,(255,255,255),2)
+			cv2.putText(self.bScoreImg, str(self.boardScore[i]), (0,0+rsw*(i+2)), cv2.FONT_HERSHEY_SIMPLEX, 1,(255,255,255),2)
+			if i == 4:
+				cv2.putText(self.bScoreImg, "---------------------", (0,0+rsw/2+rsw*(i+2)), cv2.FONT_HERSHEY_SIMPLEX, 1,(255,255,255),2)
+			elif i == 9:
+				cv2.putText(self.bScoreImg, "---------------------", (0,0+rsw/2+rsw*(i+2)), cv2.FONT_HERSHEY_SIMPLEX, 1,(255,255,255),2)
+			elif i == 10:
+				cv2.putText(self.bScoreImg, "=====================", (0,0+rsw/2+rsw*(i+2)), cv2.FONT_HERSHEY_SIMPLEX, 1,(255,255,255),2)
 			
